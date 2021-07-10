@@ -103,25 +103,34 @@ public class KeycloakUserQueryImpl extends UserQueryImpl {
             if (keycloakUsers != null) {
                 List<User> users = new ArrayList<>(keycloakUsers.size());
                 for (KeycloakUserRepresentation keycloakUser : keycloakUsers) {
-                    User user = new UserEntityImpl();
-                    user.setId(keycloakUser.getUsername());
-                    user.setFirstName(keycloakUser.getFirstName());
-                    user.setLastName(keycloakUser.getLastName());
-                    user.setEmail(keycloakUser.getEmail());
-                    CustomAttributes attributes = keycloakUser.getAttributes();
-                    if (attributes == null) {
-                        throw new FlowableException(" User Custom Attributes cannot be null!!");
-                    }
 
-                    if (attributes.getTenantId() == null
-                            || (attributes.getTenantId() != null && attributes.getTenantId()[0] == null)) {
-                        throw new FlowableException(" User Custom Attributes TenantID should not be null !");
-                    }
+                    try {
+                        if (!keycloakUser.getEnabled()) {
+                            throw new FlowableException(" User cannot be disabled!!");
+                        }
 
-                    if (attributes.getTenantId()[0] != null) {
+                        User user = new UserEntityImpl();
+                        user.setId(keycloakUser.getUsername());
+                        user.setFirstName(keycloakUser.getFirstName());
+                        user.setLastName(keycloakUser.getLastName());
+                        user.setEmail(keycloakUser.getEmail());
+                        CustomAttributes attributes = keycloakUser.getAttributes();
+                        if (attributes == null) {
+                            throw new FlowableException(" User Custom Attributes cannot be null!!");
+                        }
+
+                        if (attributes.getTenantId() == null
+                                || (attributes.getTenantId() != null && attributes.getTenantId()[0] == null)) {
+                            throw new FlowableException(" User Custom Attributes TenantID should not be null !");
+                        }
+
                         user.setTenantId(attributes.getTenantId()[0]);
+                        users.add(user);
+
+                    } catch (FlowableException e) {
+                        LOGGER.error(e.getMessage());
                     }
-                    users.add(user);
+
                 }
                 return users;
             } else {
