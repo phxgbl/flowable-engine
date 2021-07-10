@@ -109,15 +109,16 @@ public class KeycloakUserQueryImpl extends UserQueryImpl {
                     user.setLastName(keycloakUser.getLastName());
                     user.setEmail(keycloakUser.getEmail());
                     CustomAttributes attributes = keycloakUser.getAttributes();
-                    if(attributes == null){
+                    if (attributes == null) {
                         throw new FlowableException(" User Custom Attributes cannot be null!!");
                     }
 
-                    if (attributes.getTenantId() == null || (attributes.getTenantId() != null && attributes.getTenantId()[0] == null) ) {
+                    if (attributes.getTenantId() == null
+                            || (attributes.getTenantId() != null && attributes.getTenantId()[0] == null)) {
                         throw new FlowableException(" User Custom Attributes TenantID should not be null !");
                     }
 
-                    if (attributes.getTenantId()[0] != null ) {
+                    if (attributes.getTenantId()[0] != null) {
                         user.setTenantId(attributes.getTenantId()[0]);
                     }
                     users.add(user);
