@@ -25,6 +25,8 @@ public class KeycloakUserRepresentation {
     protected String firstName;
     protected String lastName;
     protected String username;
+    protected CustomAttributes attributes;
+    protected Boolean enabled;
 
     public String getId() {
         return id;
@@ -65,4 +67,21 @@ public class KeycloakUserRepresentation {
     public void setUsername(String username) {
         this.username = username;
     }
+
+    public CustomAttributes getAttributes() {
+        return attributes;
+    }
+
+    public void setAttributes(CustomAttributes attributes) {
+        this.attributes = attributes;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
 }

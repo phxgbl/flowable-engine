@@ -49,8 +49,9 @@ public class KeycloakUserQueryImpl extends UserQueryImpl {
 
     @Override
     public long executeCount(CommandContext commandContext) {
-        //GET /{realm}/users/count
-        // Query parameters: username, email, firstName, lastName, search(email, first, last or username)
+        // GET /{realm}/users/count
+        // Query parameters: username, email, firstName, lastName, search(email, first,
+        // last or username)
         // paging first, max
 
         UriComponentsBuilder builder = prepareQuery("/users/count");
@@ -76,7 +77,8 @@ public class KeycloakUserQueryImpl extends UserQueryImpl {
     public List<User> executeList(CommandContext commandContext) {
 
         // GET /{realm}/users
-        // Query parameters: username, email, firstName, lastName, search(email, first, last or username)
+        // Query parameters: username, email, firstName, lastName, search(email, first,
+        // last or username)
         // paging first, max
 
         UriComponentsBuilder builder = prepareQuery("/users");
@@ -106,6 +108,18 @@ public class KeycloakUserQueryImpl extends UserQueryImpl {
                     user.setFirstName(keycloakUser.getFirstName());
                     user.setLastName(keycloakUser.getLastName());
                     user.setEmail(keycloakUser.getEmail());
+                    CustomAttributes attributes = keycloakUser.getAttributes();
+                    if(attributes == null){
+                        throw new FlowableException(" User Custom Attributes cannot be null!!");
+                    }
+
+                    if (attributes.getTenantId() == null || (attributes.getTenantId() != null && attributes.getTenantId()[0] == null) ) {
+                        throw new FlowableException(" User Custom Attributes TenantID should not be null !");
+                    }
+
+                    if (attributes.getTenantId()[0] != null ) {
+                        user.setTenantId(attributes.getTenantId()[0]);
+                    }
                     users.add(user);
                 }
                 return users;
@@ -119,7 +133,8 @@ public class KeycloakUserQueryImpl extends UserQueryImpl {
     }
 
     protected UriComponentsBuilder prepareQuery(String path) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(keycloakConfiguration.getServer() + "auth/admin/realms/{realm}" + path);
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(keycloakConfiguration.getServer() + "auth/admin/realms/{realm}" + path);
 
         if (getId() != null) {
             builder.queryParam("username", getId());
