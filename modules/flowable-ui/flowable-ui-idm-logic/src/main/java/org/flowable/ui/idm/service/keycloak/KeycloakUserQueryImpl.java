@@ -56,6 +56,7 @@ public class KeycloakUserQueryImpl extends UserQueryImpl {
 
         UriComponentsBuilder builder = prepareQuery("/users/count");
         URI uri = builder.buildAndExpand(keycloakConfiguration.getRealm()).toUri();
+        uri = URI.create("http://localhost:9090/auth/realms/Adapt/ext-user-rest-api/users/search/attribute/count/tenantId/aneers");
 
         ResponseEntity<Long> response = keycloakConfiguration.getRestTemplate().getForEntity(uri, Long.class);
         HttpStatus statusCode = response.getStatusCode();
@@ -92,6 +93,7 @@ public class KeycloakUserQueryImpl extends UserQueryImpl {
         }
 
         URI uri = builder.buildAndExpand(keycloakConfiguration.getRealm()).toUri();
+        uri = URI.create("http://localhost:9090/auth/realms/Adapt/ext-user-rest-api/users/search/attribute/tenantId/aneers");
 
         ResponseEntity<List<KeycloakUserRepresentation>> response = keycloakConfiguration.getRestTemplate()
                 .exchange(uri, HttpMethod.GET, null, KEYCLOAK_LIST_OF_USERS);
@@ -119,12 +121,11 @@ public class KeycloakUserQueryImpl extends UserQueryImpl {
                             throw new FlowableException(" User Custom Attributes cannot be null!!");
                         }
 
-                        if (attributes.getTenantId() == null
-                                || (attributes.getTenantId() != null && attributes.getTenantId()[0] == null)) {
+                        if (attributes.getTenantId() == null) {
                             throw new FlowableException(" User Custom Attributes TenantID should not be null !");
                         }
 
-                        user.setTenantId(attributes.getTenantId()[0]);
+                        user.setTenantId(attributes.getTenantId());
                         users.add(user);
 
                     } catch (FlowableException e) {

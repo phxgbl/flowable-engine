@@ -5,13 +5,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CustomAttributes {
 
-    private String[] tenantId;
+    private String tenantId;
 
-    public String[] getTenantId() {
+    public String getTenantId() {
         return tenantId;
     }
 
-    public void setTenantId(String[] tenantId) {
+    public void setTenantId(String tenantId) {
         this.tenantId = tenantId;
     }
 
