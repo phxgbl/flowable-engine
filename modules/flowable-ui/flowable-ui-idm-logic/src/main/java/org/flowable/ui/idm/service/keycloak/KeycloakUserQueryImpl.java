@@ -49,14 +49,12 @@ public class KeycloakUserQueryImpl extends UserQueryImpl {
 
     @Override
     public long executeCount(CommandContext commandContext) {
-        // GET /{realm}/users/count
-        // Query parameters: username, email, firstName, lastName, search(email, first,
-        // last or username)
+        //GET /{realm}/users/count
+        // Query parameters: username, email, firstName, lastName, search(email, first, last or username)
         // paging first, max
 
         UriComponentsBuilder builder = prepareQuery("/users/count");
         URI uri = builder.buildAndExpand(keycloakConfiguration.getRealm()).toUri();
-        uri = URI.create("http://localhost:9090/auth/realms/Adapt/ext-user-rest-api/users/search/attribute/count/tenantId/aneers");
 
         ResponseEntity<Long> response = keycloakConfiguration.getRestTemplate().getForEntity(uri, Long.class);
         HttpStatus statusCode = response.getStatusCode();
@@ -78,8 +76,7 @@ public class KeycloakUserQueryImpl extends UserQueryImpl {
     public List<User> executeList(CommandContext commandContext) {
 
         // GET /{realm}/users
-        // Query parameters: username, email, firstName, lastName, search(email, first,
-        // last or username)
+        // Query parameters: username, email, firstName, lastName, search(email, first, last or username)
         // paging first, max
 
         UriComponentsBuilder builder = prepareQuery("/users");
@@ -93,7 +90,6 @@ public class KeycloakUserQueryImpl extends UserQueryImpl {
         }
 
         URI uri = builder.buildAndExpand(keycloakConfiguration.getRealm()).toUri();
-        uri = URI.create("http://localhost:9090/auth/realms/Adapt/ext-user-rest-api/users/search/attribute/tenantId/aneers");
 
         ResponseEntity<List<KeycloakUserRepresentation>> response = keycloakConfiguration.getRestTemplate()
                 .exchange(uri, HttpMethod.GET, null, KEYCLOAK_LIST_OF_USERS);
@@ -105,33 +101,12 @@ public class KeycloakUserQueryImpl extends UserQueryImpl {
             if (keycloakUsers != null) {
                 List<User> users = new ArrayList<>(keycloakUsers.size());
                 for (KeycloakUserRepresentation keycloakUser : keycloakUsers) {
-
-                    try {
-                        if (!keycloakUser.getEnabled()) {
-                            throw new FlowableException(" User cannot be disabled!!");
-                        }
-
-                        User user = new UserEntityImpl();
-                        user.setId(keycloakUser.getUsername());
-                        user.setFirstName(keycloakUser.getFirstName());
-                        user.setLastName(keycloakUser.getLastName());
-                        user.setEmail(keycloakUser.getEmail());
-                        CustomAttributes attributes = keycloakUser.getAttributes();
-                        if (attributes == null) {
-                            throw new FlowableException(" User Custom Attributes cannot be null!!");
-                        }
-
-                        if (attributes.getTenantId() == null) {
-                            throw new FlowableException(" User Custom Attributes TenantID should not be null !");
-                        }
-
-                        user.setTenantId(attributes.getTenantId());
-                        users.add(user);
-
-                    } catch (FlowableException e) {
-                        LOGGER.error(e.getMessage());
-                    }
-
+                    User user = new UserEntityImpl();
+                    user.setId(keycloakUser.getUsername());
+                    user.setFirstName(keycloakUser.getFirstName());
+                    user.setLastName(keycloakUser.getLastName());
+                    user.setEmail(keycloakUser.getEmail());
+                    users.add(user);
                 }
                 return users;
             } else {
@@ -144,8 +119,7 @@ public class KeycloakUserQueryImpl extends UserQueryImpl {
     }
 
     protected UriComponentsBuilder prepareQuery(String path) {
-        UriComponentsBuilder builder = UriComponentsBuilder
-                .fromHttpUrl(keycloakConfiguration.getServer() + "auth/admin/realms/{realm}" + path);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(keycloakConfiguration.getServer() + "auth/admin/realms/{realm}" + path);
 
         if (getId() != null) {
             builder.queryParam("username", getId());
