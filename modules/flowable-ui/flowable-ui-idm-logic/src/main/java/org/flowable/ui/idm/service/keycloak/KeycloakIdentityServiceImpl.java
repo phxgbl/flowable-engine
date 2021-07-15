@@ -42,7 +42,7 @@ public class KeycloakIdentityServiceImpl extends IdmIdentityServiceImpl {
 
     @Override
     public UserQuery createUserQuery() {
-        return new KeycloakUserTenantQueryImpl(keycloakConfiguration);
+        return new KeycloakAdaptUserTenantQueryImpl(keycloakConfiguration);
     }
 
     @Override

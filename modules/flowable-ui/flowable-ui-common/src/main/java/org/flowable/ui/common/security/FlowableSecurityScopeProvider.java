@@ -21,6 +21,6 @@ public class FlowableSecurityScopeProvider implements SecurityScopeProvider {
 
     @Override
     public SecurityScope getSecurityScope(Authentication authentication) {
-        return new FlowableAuthenticationSecurityScope(authentication);
+        return new FlowableAdaptAuthenticationSecurityScope(authentication);
     }
 }
