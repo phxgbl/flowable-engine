@@ -35,7 +35,12 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public class KeycloakUserQueryImpl extends UserQueryImpl {
 
-    protected static final ParameterizedTypeReference<List<KeycloakUserRepresentation>> KEYCLOAK_LIST_OF_USERS = new ParameterizedTypeReference<List<KeycloakUserRepresentation>>() {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4367401545772304001L;
+
+	protected static final ParameterizedTypeReference<List<KeycloakUserRepresentation>> KEYCLOAK_LIST_OF_USERS = new ParameterizedTypeReference<List<KeycloakUserRepresentation>>() {
 
     };
 
@@ -102,7 +107,7 @@ public class KeycloakUserQueryImpl extends UserQueryImpl {
                 List<User> users = new ArrayList<>(keycloakUsers.size());
                 for (KeycloakUserRepresentation keycloakUser : keycloakUsers) {
                     User user = new UserEntityImpl();
-                    user.setId(keycloakUser.getUsername());
+                    user.setId(keycloakUser.getId());
                     user.setFirstName(keycloakUser.getFirstName());
                     user.setLastName(keycloakUser.getLastName());
                     user.setEmail(keycloakUser.getEmail());

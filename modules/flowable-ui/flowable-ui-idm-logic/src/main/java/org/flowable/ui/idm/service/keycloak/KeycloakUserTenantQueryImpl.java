@@ -150,18 +150,20 @@ public class KeycloakUserTenantQueryImpl extends UserQueryImpl {
 
 					try {
 						if (!keycloakUser.getEnabled()) {
-							throw new FlowableException(new StringBuilder("User ").append(userName).append(" is disabled!!!").toString());
+							throw new FlowableException(
+									new StringBuilder("User ").append(userName).append(" is disabled!!!").toString());
+						}
+
+						if (keycloakUser.getTenantId() == null) {
+							throw new FlowableException(new StringBuilder("TenantId for user ").append(userName)
+									.append(" cannot be null!!!").toString());
 						}
 
 						User user = new UserEntityImpl();
-						user.setId(keycloakUser.getUsername());
+						user.setId(keycloakUser.getId());
 						user.setFirstName(keycloakUser.getFirstName());
 						user.setLastName(keycloakUser.getLastName());
 						user.setEmail(keycloakUser.getEmail());
-
-						if (keycloakUser.getTenantId() == null) {
-							throw new FlowableException(new StringBuilder("TenantId for user ").append(userName).append(" cannot be null!!!").toString());
-						}
 
 						user.setTenantId(keycloakUser.getTenantId());
 						users.add(user);
