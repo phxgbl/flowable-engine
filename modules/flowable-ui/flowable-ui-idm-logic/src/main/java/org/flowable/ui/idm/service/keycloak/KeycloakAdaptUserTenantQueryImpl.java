@@ -62,23 +62,11 @@ public class KeycloakAdaptUserTenantQueryImpl extends UserQueryImpl {
 		// last or username)
 		// paging first, max
 
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+		// UriComponentsBuilder builder = prepareQuery(
+		// new
+		// StringBuilder("/users/count?username=").append(tenantId).append("-").toString());
+		UriComponentsBuilder builder = prepareQuery("/users/count/");
 
-		String username = oidcUser.getPreferredUsername();
-		if (username == null) {
-			throw new FlowableException(" Username cannot be null!!!");
-		}
-
-		String tenantId = username.split("-")[0];
-
-		if (tenantId.equals(username)) {
-			throw new FlowableException(
-					new StringBuilder("TenantId is Null or Invalid for user ").append(username).toString());
-		}
-
-		UriComponentsBuilder builder = prepareQuery(
-				new StringBuilder("/users/count?username=").append(tenantId).append("-").toString());
 		URI uri = builder.buildAndExpand(keycloakConfiguration.getRealm()).toUri();
 
 		ResponseEntity<Long> response = keycloakConfiguration.getRestTemplate().getForEntity(uri, Long.class);
@@ -104,25 +92,12 @@ public class KeycloakAdaptUserTenantQueryImpl extends UserQueryImpl {
 		// Query parameters: username, email, firstName, lastName, search(email, first,
 		// last or username)
 		// paging first, max
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
 
-		String username = oidcUser.getPreferredUsername();
-		if (username == null) {
-			throw new FlowableException(" Username cannot be null!!!");
-		}
-
-		String tenantId = username.split("-")[0];
-
-		if (tenantId.equals(username)) {
-			throw new FlowableException(
-					new StringBuilder("TenantId is Null or Invalid for user ").append(username).toString());
-		}
-
-
-		UriComponentsBuilder builder = prepareQuery(
-				new StringBuilder("/users?username=").append(tenantId).append("-").toString());
-
+		// UriComponentsBuilder builder = prepareQuery(
+		// new
+		// StringBuilder("/users?username=").append(tenantId).append("-").toString());
+		String tenantId = getTenantIdFromAuthentication();
+		UriComponentsBuilder builder = prepareQuery("/users/");
 		if (getMaxResults() >= 0) {
 			builder.queryParam("max", getMaxResults());
 		}
@@ -143,9 +118,9 @@ public class KeycloakAdaptUserTenantQueryImpl extends UserQueryImpl {
 			if (keycloakUsers != null) {
 				List<User> users = new ArrayList<>(keycloakUsers.size());
 				for (KeycloakUserRepresentation keycloakUser : keycloakUsers) {
-					String usernameWithoutTenant = keycloakUser.getUsername().split("-")[1];
+					// String usernameWithoutTenant = keycloakUser.getUsername().split("-")[1];
 					User user = new UserEntityImpl();
-					user.setId(usernameWithoutTenant);
+					user.setId(keycloakUser.getUsername());
 					user.setFirstName(keycloakUser.getFirstName());
 					user.setLastName(keycloakUser.getLastName());
 					user.setEmail(keycloakUser.getEmail());
@@ -166,6 +141,11 @@ public class KeycloakAdaptUserTenantQueryImpl extends UserQueryImpl {
 		UriComponentsBuilder builder = UriComponentsBuilder
 				.fromHttpUrl(keycloakConfiguration.getServer() + "auth/admin/realms/{realm}" + path);
 
+		if (getId() == null) {
+			String tenantId = new StringBuilder(getTenantIdFromAuthentication()).append("-").toString();
+			builder.queryParam("username", tenantId);
+		}
+
 		if (getId() != null) {
 			builder.queryParam("username", getId());
 		} else if (getIdIgnoreCase() != null) {
@@ -177,6 +157,24 @@ public class KeycloakAdaptUserTenantQueryImpl extends UserQueryImpl {
 		}
 
 		return builder;
+	}
+
+	private String getTenantIdFromAuthentication() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+
+		String username = oidcUser.getPreferredUsername();
+		if (username == null) {
+			throw new FlowableException(" Username cannot be null!!!");
+		}
+
+		String tenantId = username.split("-")[0];
+
+		if (tenantId.equals(username)) {
+			throw new FlowableException(
+					new StringBuilder("TenantId is Null or Invalid for user ").append(username).toString());
+		}
+		return tenantId;
 	}
 
 }
