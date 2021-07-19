@@ -23,6 +23,7 @@ import org.flowable.ui.common.security.SecurityUtils;
 import org.flowable.ui.common.service.exception.BadRequestException;
 import org.flowable.ui.common.service.exception.ConflictingRequestException;
 import org.flowable.ui.common.service.exception.InternalServerErrorException;
+import org.flowable.ui.common.tenant.TenantProvider;
 import org.flowable.ui.modeler.domain.Model;
 import org.flowable.ui.modeler.model.ModelKeyRepresentation;
 import org.flowable.ui.modeler.model.ModelRepresentation;
@@ -65,6 +66,9 @@ public class ModelResource {
 
     @Autowired
     protected ObjectMapper objectMapper;
+    
+    @Autowired
+    protected TenantProvider tenantProvider;
 
     protected BpmnJsonConverter bpmnJsonConverter = new BpmnJsonConverter();
 
@@ -94,6 +98,15 @@ public class ModelResource {
     public ModelRepresentation updateModel(@PathVariable String modelId, @RequestBody ModelRepresentation updatedModel) {
         // Get model, write-permission required if not a favorite-update
         Model model = modelService.getModel(modelId);
+        
+      //added by aneer to include tenantid
+        String tenantId = tenantProvider.getTenantId();        
+        if(tenantId == null || (tenantId != null && tenantId.trim().equals(""))) {
+        	LOGGER.error(" TenantId null for createModel");
+            throw new InternalServerErrorException("Tenant Id NULL!!!!");
+        }
+        updatedModel.setTenantId(tenantProvider.getTenantId());
+      //aneer code ends here
 
         ModelKeyRepresentation modelKeyInfo = modelService.validateModelKey(model, model.getModelType(), updatedModel.getKey());
         if (modelKeyInfo.isKeyAlreadyExists()) {

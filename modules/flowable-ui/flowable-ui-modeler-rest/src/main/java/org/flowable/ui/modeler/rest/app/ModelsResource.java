@@ -21,6 +21,7 @@ import org.flowable.ui.common.model.ResultListDataRepresentation;
 import org.flowable.ui.common.security.SecurityUtils;
 import org.flowable.ui.common.service.exception.ConflictingRequestException;
 import org.flowable.ui.common.service.exception.InternalServerErrorException;
+import org.flowable.ui.common.tenant.TenantProvider;
 import org.flowable.ui.modeler.domain.AbstractModel;
 import org.flowable.ui.modeler.domain.Model;
 import org.flowable.ui.modeler.model.ModelKeyRepresentation;
@@ -56,6 +57,9 @@ public class ModelsResource {
 
     @Autowired
     protected ObjectMapper objectMapper;
+    
+    @Autowired
+    protected TenantProvider tenantProvider;
 
     @GetMapping(value = "/rest/models", produces = "application/json")
     public ResultListDataRepresentation getModels(@RequestParam(required = false) String filter, @RequestParam(required = false) String sort, @RequestParam(required = false) Integer modelType,
@@ -146,8 +150,17 @@ public class ModelsResource {
     public ModelRepresentation createModel(@RequestBody ModelRepresentation modelRepresentation) {
         modelRepresentation.setKey(modelRepresentation.getKey().replaceAll(" ", ""));
         checkForDuplicateKey(modelRepresentation);
-
+        
         String json = modelService.createModelJson(modelRepresentation);
+        
+        //added by aneer to include tenantid
+        String tenantId = tenantProvider.getTenantId();
+        if(tenantId == null || (tenantId != null && tenantId.trim().equals(""))) {
+        	LOGGER.error(" TenantId null for createModel");
+            throw new InternalServerErrorException("Tenant Id NULL!!!!");
+        }
+        modelRepresentation.setTenantId(tenantProvider.getTenantId());
+        //aneer code ends here
 
         Model newModel = modelService.createModel(modelRepresentation, json, SecurityUtils.getCurrentUserId());
         return new ModelRepresentation(newModel);
